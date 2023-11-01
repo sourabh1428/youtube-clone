@@ -1,4 +1,4 @@
-const key = "AIzaSyD0cItI-ZMfDu0HJmR1nhyY_LsP8dyShwY";
+const key = "AIzaSyD2-fVg77pUepkk3ByOBbuxcz-53yHTsWo";
 const BASE_URL = "https://www.googleapis.com/youtube/v3";
 
 const searchVideoInput = document.getElementById("searchVideoInput");
@@ -1791,6 +1791,13 @@ function makeACard(videoCode,chanelId,videoImg,videoTitle,channelName,viewCount,
         
         sessionStorage.setItem("videoCode",videoCode);
         sessionStorage.setItem("channelId",chanelId);
+        sessionStorage.setItem("videoTitle",videoTitle);
+        sessionStorage.setItem("channelName",channelName);
+        sessionStorage.setItem("viewCount",viewCount);
+        sessionStorage.setItem("channelLogo",channelLogo);
+        
+
+
     
         openNewPage('video.html')
     });
