@@ -1,5 +1,8 @@
-const key='AIzaSyCikAK8fMHAM0Wpxog12RCcUlMvAFxAkn0';
+const key='AIzaSyBrKEkk6A4G9YRl4O9d6wNANLDai8RHRKU';
 const BASE_URL = "https://www.googleapis.com/youtube/v3";
+const key2="AIzaSyDeFjleaoXNBRR-jlJiUZBEg4gso9DMEMQ";
+
+
 
 let videoId=sessionStorage.getItem("videoCode");
 
@@ -44,10 +47,11 @@ async function getVideoStats(videoId) {
     `${BASE_URL}/videos?key=${key}&part=statistics&id=${videoId}`
   );
   const data = await response.json();
+  console.log(videoId);
   // console.log(data);
   loaddata(obj,videoId);
- await  getComments(videoId)
-  await relatedVideos(videoId,key);
+   getComments(videoId)
+   getRelatedVideoIds(videoId,key2)
     
 }
 getVideoStats(videoId);
@@ -60,35 +64,35 @@ function calculateTimeAgo(dateTime) {
   // Calculate the difference in milliseconds
   const timeDifference = now - targetDate;
 
-  // Calculate years, months, days, hours, and minutes
+  // Calculate years, months, weeks, days, hours, and minutes
   const yearsAgo = now.getFullYear() - targetDate.getFullYear();
   const monthsAgo = now.getMonth() - targetDate.getMonth();
+  const weeksAgo = Math.floor(timeDifference / (1000 * 60 * 60 * 24 * 7));
   const daysAgo = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-  const hoursAgo = Math.floor((timeDifference / (1000 * 60 * 60)) % 24);
-  const minutesAgo = Math.floor((timeDifference / (1000 * 60)) % 60);
+  const hoursAgo = Math.floor((timeDifference / (1000 * 60 * 60) % 24));
+  const minutesAgo = Math.floor((timeDifference / (1000 * 60) % 60));
 
   // Initialize an empty array to store time units
   const timeAgo = [];
 
-  // Add units to the array based on conditions
   if (yearsAgo > 0) {
     timeAgo.push(`${yearsAgo} year${yearsAgo > 1 ? 's' : ''}`);
-  }
-  if (monthsAgo > 0) {
+  } else if (monthsAgo > 0) {
     timeAgo.push(`${monthsAgo} month${monthsAgo > 1 ? 's' : ''}`);
-  }
-  if (daysAgo > 0) {
+  } else if (weeksAgo > 0) {
+    timeAgo.push(`${weeksAgo} week${weeksAgo > 1 ? 's' : ''}`);
+  } else if (daysAgo > 0) {
     timeAgo.push(`${daysAgo} day${daysAgo > 1 ? 's' : ''}`);
-  }
-  if (hoursAgo > 0) {
+  } else if (hoursAgo > 0) {
     timeAgo.push(`${hoursAgo} hour${hoursAgo > 1 ? 's' : ''}`);
-  }
-  if (minutesAgo > 0) {
+  } else if (minutesAgo > 0) {
     timeAgo.push(`${minutesAgo} minute${minutesAgo > 1 ? 's' : ''}`);
   }
 
-  return timeAgo.join(', ');
+  return timeAgo.join(' ');
 }
+
+
 
 // Example usage:
 function getSubscount(){
@@ -214,31 +218,33 @@ commentList.append(li);
 
 }
 
-async function relatedVideos(videoId, apiKey) {
-  // Specify the video ID for which you want to retrieve related videos
-  // Make a request to retrieve related videos
-  const apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&relatedToVideoId=${videoId}&type=video&maxResults=10`;
-
+async function getRelatedVideoIds(videoId, apiKey) {
   try {
+    const apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&relatedToVideoId=${videoId}&type=video&maxResults=10`;
+
     const response = await fetch(apiUrl);
+
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.status}`);
     }
-    
+
     const data = await response.json();
     const relatedVideos = data.items;
 
-    relatedVideos.forEach(video => {
-      const videoTitle = video.snippet.title;
-      const videoId = video.id.videoId;
+    // Extract video IDs from the related videos
+    const relatedVideoIds = relatedVideos.map(video => video.id.videoId);
 
-      console.log('Video Title:', videoTitle);
-      console.log('Video ID:', videoId);
-    });
+    // Return an array of related video IDs
+    console.log(relatedVideoIds);
+    return relatedVideoIds;
   } catch (error) {
-    console.error('Error retrieving related videos:', error);
+    console.error('Error retrieving related video IDs:', error);
+    return null;
   }
 }
+
+
+
 
 // Usage
 

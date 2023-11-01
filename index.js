@@ -1,4 +1,4 @@
-const key = "AIzaSyD2-fVg77pUepkk3ByOBbuxcz-53yHTsWo";
+const key = "AIzaSyBrKEkk6A4G9YRl4O9d6wNANLDai8RHRKU";
 const BASE_URL = "https://www.googleapis.com/youtube/v3";
 
 const searchVideoInput = document.getElementById("searchVideoInput");
