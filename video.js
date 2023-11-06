@@ -1,6 +1,6 @@
-const key='AIzaSyD6UCiZecUalJ45440XOks1Vvlp0dwW_HE';
+const key='AIzaSyBJr6IdGrW35bu2KMeAnL832FG47b8a75s';
 const BASE_URL = "https://www.googleapis.com/youtube/v3";
-const key2="AIzaSyDeFjleaoXNBRR-jlJiUZBEg4gso9DMEMQ";
+const key2="AIzaSyBhy7Ao1UN95IPu0J4vKtuhvUON-3RFsqo";
 
 
 
@@ -31,16 +31,18 @@ let obj={
 
 
 window.addEventListener("load", () => {
-  // we need to write logic for rendering video player
-  // iframe
-  if(YT){
-    new YT.Player('video-container',{
-        height: "500",
-        width: "1000",
-        videoId,
-    })
+  if (YT) {
+    new YT.Player('video-container', {
+      height: '500',
+      width: '1000',
+      videoId,
+      playerVars: {
+        autoplay: 1, // 1 enables autoplay, 0 disables it
+      },
+    });
   }
-});
+}
+);
 
 async function getVideoStats(videoId) {
   const response = await fetch(
@@ -50,11 +52,75 @@ async function getVideoStats(videoId) {
   console.log(videoId);
   // console.log(data);
   loaddata(obj,videoId);
-   getComments(videoId)
-   getRelatedVideoIds(videoId,key2)
+   getComments(videoId);
+   searchVideo("trending");
+   getChanneid();
+   getRel();
+  //  getRelatedVideoIds(videoId,key);
     
 }
 getVideoStats(videoId);
+async function getChanneid(){
+
+const videoUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${key}&part=snippet`;
+
+fetch(videoUrl)
+  .then(response => response.json())
+  .then(data => {
+    const channelID = data.items[0].snippet.channelId;
+
+    // Step 2: Get the Channel Description using the Channel ID
+    const channelUrl = `https://www.googleapis.com/youtube/v3/channels?id=${channelID}&key=${key}&part=snippet`;
+
+    fetch(channelUrl)
+      .then(response => response.json())
+      .then(channelData => {
+        const channelDescription = channelData.items[0].snippet.description;
+        document.getElementById("channelDes").innerText=channelDescription;
+      })
+      .catch(error => {
+        console.error('Error getting channel description:', error);
+      });
+  })
+  .catch(error => {
+    console.error('Error getting video information:', error);
+  });
+}
+
+async function searchVideo(str) {
+  const res = await fetch(
+    `${BASE_URL}/search?key=${key}&q=${str}}&maxResults=${10}&part=snippet`
+  );
+
+  const data = await res.json();
+    console.log(data);
+  data.items.map((e) => {
+    {
+      console.log(e);
+    }
+  });
+}
+
+async function getRel(){
+  // Set your API key
+
+
+// Define the number of related videos you want to retrieve
+const maxResults = 10;
+
+// Make the API request to get related videos
+fetch(`https://www.googleapis.com/youtube/v3/search?key=${key2}&relatedToVideoId=${videoId}&type=video&part=snippet&maxResults=${maxResults}`)
+  .then(response => response.json())
+  .then(data => {
+    // Extract and print the related video IDs
+    const relatedVideoIds = data.items.map(item => item.id.videoId);
+    console.log(relatedVideoIds);
+  })
+  .catch(error => {
+    console.error('Error fetching related videos:', error);
+  });
+
+}
 
 
 function calculateTimeAgo(dateTime) {
@@ -218,35 +284,38 @@ commentList.append(li);
 
 }
 
-async function getRelatedVideoIds(videoId, apiKey) {
-  try {
-    const apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&relatedToVideoId=${videoId}&type=video&maxResults=10`;
+async function getRelatedVideoIds(VIDEO_ID, API_KEY) {
+  const apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&relatedToVideoId=${VIDEO_ID}&type=video&maxResults=10`;
 
+  try {
     const response = await fetch(apiUrl);
 
     if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
     const data = await response.json();
+
+    // Process the JSON response
     const relatedVideos = data.items;
 
-    // Extract video IDs from the related videos
-    const relatedVideoIds = relatedVideos.map(video => video.id.videoId);
+    relatedVideos.forEach((video) => {
+      const videoId = video.id.videoId;
+      const videoTitle = video.snippet.title;
 
-    // Return an array of related video IDs
-    console.log(relatedVideoIds);
-    return relatedVideoIds;
+      console.log(`Video ID: ${videoId}, Title: ${videoTitle}`);
+    });
   } catch (error) {
-    console.error('Error retrieving related video IDs:', error);
-    return null;
+    console.error('Error fetching related videos:', error);
   }
 }
 
 
 
+// Example usage:
 
-// Usage
+// Example usage:
+
 
 async function getSubscriberCount(videoId, apiKey) {
   // Step 1: Get the channel ID from the video ID

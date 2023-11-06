@@ -1,4 +1,4 @@
-const key = "AIzaSyBrKEkk6A4G9YRl4O9d6wNANLDai8RHRKU";
+const key = "AIzaSyDy1QROxLwwwsW6sSwPh4iCSsvLxg6JQXo";
 const BASE_URL = "https://www.googleapis.com/youtube/v3";
 
 const searchVideoInput = document.getElementById("searchVideoInput");
@@ -6,8 +6,29 @@ const searchVideoButton = document.getElementById("searchVideoButton");
 const cardContainer=document.getElementById("cardContainer");
 
 
-searchVideoButton.addEventListener("click", () =>
-searchVideo(searchVideoInput.value));
+searchVideoButton.addEventListener("click", () =>{searchVideo(searchVideoInput.value);console.log(searchVideoInput.value);}
+
+);
+let bool=false;
+
+function reloadWin(){
+if(searchVideoInput.value===""){
+    searchVideo("");
+    bool=true;
+    console.log("debounced");
+}}
+let reloadWindow=debounce(reloadWin,3000);
+
+if(bool===false)reloadWin();
+
+function debounce(callback,delay){
+    let timerId;
+    return function(...args){
+        clearTimeout(timerId);
+        timerId=setTimeout(()=>callback(...args),delay);
+    }
+}
+
 
 const firstObjArray = {
     "kind": "youtube#searchListResponse",
